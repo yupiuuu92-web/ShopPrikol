@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Магазин прикола</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        nav {
+            background-color: #444;
+            padding: 10px;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+        }
+        section {
+            padding: 20px;
+            margin: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .product {
+            display: inline-block;
+            width: 30%;
+            margin: 1.5%;
+            text-align: center;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .product img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+        #admin-panel {
+            display: none;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        #admin-login {
+            margin: 20px;
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        button {
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        .edit-btn, .delete-btn {
+            margin: 5px;
+            padding: 5px 10px;
+            font-size: 0.9em;
+            .h5{
+                display: flex;
+                
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Магазин с приколами</h1>
+        <p>Качественный продукт</p>
+    </header>
+
+    <nav>
+        <a href="#products">Товары</a>
+        <a href="#news">Новости</a>
+        <a href="#contacts">Контакты</a>
+        <a href="#admin-login">Админ-панель</a>
+    </nav>
+
+    <section id="products">
+        <h2>Наши Товары</h2>
+        <div id="product-list"></div>
+    </section>
+
+    <section id="news">
+        <h2>Новости</h2>
+        <article>
+            <h3> Качественный продукт дури </h3>
+            <p>Мы рады представить новую коллекцию сигарет. Подробности скоро!</p>
+            <date>01.10.2025</date>
+        </article>
+        <article>
+            <h3>Скидки на прошлогодние модели насвая</h3>
+            <p>До 30% скидки на избранные товары. Спешите!</p>
+            <date>15.09.2025</date>
+        </article>
+    </section>
+
+    <section id="contacts">
+        <h2>Контакты</h2>
+        <p>Адрес: г. Каракол, ул. Пушкина, д. 23</p>
+        <p>Телефон: 911</p>
+        <p>telegram:nur14kp </p>
+        <p>Время работы: Пн-Пт, 10:00 - 18:00</p>
+    </section>
+
+    <section id="admin-login">
+        <h2>Вход в админ-панель</h2>
+        <input type="password" id="admin-password" placeholder="Введите пароль">
+        <button onclick="loginAdmin()">Войти</button>
+    </section>
+
+    <section id="admin-panel">
+        <h2>Админ-панель</h2>
+        <form id="product-form">
+            <input type="hidden" id="product-id">
+            <input type="text" id="product-name" placeholder="Название товара" required>
+            <input type="number" id="product-price" placeholder="Цена (руб.)" required>
+            <input type="file" id="product-image" accept="image/*" required>
+            <button type="submit">Добавить товар</button>
+        </form>
+        <button onclick="logoutAdmin()">Выйти</button>
+    </section>
+
+                 <h3 class=h5> Все права защишены
+                           @nur14kp tg  <h3>
+
+    <script>
+        const ADMIN_PASSWORD = "admin123";
+        let products = JSON.parse(localStorage.getItem("products")) || [];
+
+        function loadProducts() {
+            const productList = document.getElementById("product-list");
+            productList.innerHTML = "";
+            products.forEach((product, index) => {
+                const productDiv = document.createElement("div");
+                productDiv.className = "product";
+                productDiv.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}">
+                    <h3>${product.name}</h3>
+                    <p>Цена: ${product.price} руб.</p>
+                    <button onclick="buyProduct(${index})">Купить</button>
+                    ${document.getElementById("admin-panel").style.display === "block" ? 
+                        `<button class="edit-btn" onclick="editProduct(${index})">Редактировать</button>
+                         <button class="delete-btn" onclick="deleteProduct(${index})">Удалить</button>` : ""}
+                `;
+                productList.appendChild(productDiv);
+            });
+        }
+
+        function loginAdmin() {
+            const password = document.getElementById("admin-password").value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById("admin-login").style.display = "none";
+                document.getElementById("admin-panel").style.display = "block";
+                loadProducts();
+            } else {
+                alert("Неверный пароль!");
+            }
+        }
+
+        function logoutAdmin() {
+            document.getElementById("admin-panel").style.display = "none";
+            document.getElementById("admin-login").style.display = "block";
+            document.getElementById("admin-password").value = "";
+            loadProducts();
+        }
+
+        document.getElementById("product-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+            const id = document.getElementById("product-id").value;
+            const name = document.getElementById("product-name").value;
+            const price = document.getElementById("product-price").value;
+            const file = document.getElementById("product-image").files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const product = {
+                        name,
+                        price,
+                        image: e.target.result
+                    };
+                    if (id === "") {
+                        products.push(product);
+                    } else {
+                        products[id] = product;
+                    }
+                    localStorage.setItem("products", JSON.stringify(products));
+                    document.getElementById("product-form").reset();
+                    document.getElementById("product-id").value = "";
+                    loadProducts();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function editProduct(index) {
+            const product = products[index];
+            document.getElementById("product-id").value = index;
+            document.getElementById("product-name").value = product.name;
+            document.getElementById("product-price").value = product.price;
+            document.getElementById("product-image").removeAttribute("required");
+        }
+
+        function deleteProduct(index) {
+            if (confirm("Вы уверены, что хотите удалить этот товар?")) {
+                products.splice(index, 1);
+                localStorage.setItem("products", JSON.stringify(products));
+                loadProducts();
+            }
+        }
+
+        function buyProduct(index) {
+            alert(`Вы выбрали "${products[index].name}" для покупки!`);
+        }
+
+        loadProducts();
+    </script>
+
+</body>
+</html>
